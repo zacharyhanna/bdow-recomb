@@ -5,6 +5,44 @@ author: Jeffrey D. Wall
 affiliation: Institute for Human Genetics, University of California, San Francisco, San Francisco, California, United States of America
 ---
 
+## Repeat masking of genome assembly
+
+We performed a homology-based annotation of repetitive regions using RepeatMasker version open-4.0.7 [@smitRepeatMaskerOpen4Accessed2013a] with the repeat databases of the DFAM library version 2.0 [@hubleyDfamDatabaseRepetitive2016] and the Repbase RepeatMasker libraries version 20170127 [@baoRepbaseUpdateDatabase2015; @jurkaRepbaseUpdateDatabase2005; @jurkaRepeatsGenomicDNA1998; @jurkaRepbaseUpdateDatabase2000]. Our installation of the RepeatMasker program relied on tandem repeats finder (TRF) version 4.09 [@bensonTandemRepeatsFinder1999] in addition to the NCBI BLAST+ version 2.7.1 [@camachoBLASTArchitectureApplications2009], RMBlast version 2.2.28 [@smitRMBlastAccessed20162015], and HMMER version 3.1b2 (@eddyProfileHiddenMarkov1998; http://hmmer.org) sequence search tools. We first performed a homology-based annotation of repetitive regions in the reference genome using RepeatMasker with the options '-gccalc -species aves'.
+
+```
+RepeatMasker -pa 12 -gccalc -species aves reference_genome.fa 1>reference_genome_RMask_aves.log 2>reference_genome_RMask_aves.err
+```
+
+* We created a de novo model of the repeats in the reference genome using RepeatModeler version 1.0.8 [@smitRepeatModelerOpen1Accessed2015a]. Our RepeatModeler installation used the RepeatMasker version open4.0.7 installation as detailed in the previous step with Repbase RepeatMasker libraries version 20170127, the RMBlast version 2.2.28 sequence search tool, TRF version 4.09, and two de novo repeat finding tools, RECON version 1.08 [@baoAutomatedNovoIdentification2002] and RepeatScout version 1.0.5 [@priceNovoIdentificationRepeat2005]. We first used the RepeatMasker BuildDatabase tool to build a sequence database from the reference nuclear genome, StrOccCau_2.0_nuc.fa (we didn't want the model to include repeats from the mitochondrial genome).
+
+```
+BuildDatabase -name nuclear_genome nuclear_genome.fa 1>nuclear_genome_RModbuilddb.log 2>nuclear_genome_RModbuilddb.err
+```
+
+* We then ran RepeatModeler with default options.
+
+```
+RepeatModeler -pa 6 -database nuclear_genome 1>nuclear_genome_RMod.log 2>nuclear_genome_RMod.err
+```
+
+* We performed a final round of repeat masking by supplying the masked genome output from the homology-based masking to RepeatMasker with the options "-gccalc -lib <RepeatModeler_output>", where the "RepeatModeler_output" was the "consensi.fa.classified" repeat library file output from our RepeatModeler run.
+
+```
+RepeatMasker -pa 12 -gccalc -lib consensi.fa.classified reference_genome.fa.masked.fa 1>RMask.log 2>RMask.err
+```
+
+* Since RepeatMasker masked all of the repetitive regions with N characters, we used seqtk version 1.2-r94 [@liSeqtkVersion2r942016] with options "cutN -n1 -p100000000 -g" to create a browser extensible data (BED) formatted file of the coordinates of all of the N regions (these included the gap regions in the original reference genome).
+
+```
+seqtk cutN -n1 -p100000000 -g reference_genome.fa.masked.fa.masked >reference_genome.fa.masked.fa.masked_Nregions.bed
+```
+
+* We then used the GNU core utility sort version 8.25 [@haertelSortGNUCoreutils2016] with options '-k1,1 -k2,2n' to sort the BED file.
+
+```
+sort -k1,1 -k2,2n reference_genome.fa.masked.fa.masked_Nregions.bed >reference_genome.fa.masked.fa.masked_Nregions_sorted.bed
+```
+
 ## Sequence data
 
 ### Trimming
@@ -106,7 +144,7 @@ Our input into HaplotypeCaller for each sample was the corresponding bwa-aligned
 Other than setting “--emitRefConfidence GVCF', we used default options.
 
 ```
-java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T HaplotypeCaller -R <reference_genome.fa> -I <sorted_dedup.bam> --emitRefConfidence GVCF -o <output.g.vcf> 1><output.g.vcf.log> 2><output.g.vcf.err>
+java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T HaplotypeCaller -R reference_genome.fa -I <sorted_dedup.bam> --emitRefConfidence GVCF -o output.g.vcf 1>output.g.vcf.log 2>output.g.vcf.err
 ```
 
 #### Creation of combined sample VCF
@@ -114,7 +152,7 @@ java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.
 In order to combine the individual genomic variant call format file (gVCF) files into a variant call format (VCF) file, we used the GATK version 3.8.0 GenotypeGVCFs tool with default settings.
 
 ```
-java -Xmx100g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T GenotypeGVCFs -R <reference_genome.fa> --variant <sample1.bam.g.vcf> --variant <sample2.bam.g.vcf> <...other variant files...> --variant <sample29.bam.g.vcf> -o <SpBa.vcf> 1><SpBa.vcf.log> 2><SpBa.vcf.err>
+java -Xmx100g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T GenotypeGVCFs -R <reference_genome.fa> --variant <sample1.bam.g.vcf> --variant <sample2.bam.g.vcf> <...other variant files...> --variant <sample29.bam.g.vcf> -o Str2.0_SpBa.vcf 1>Str2.0_SpBa.vcf.log 2>Str2.0_SpBa.vcf.err
 ```
 
 ### SNP filtering
@@ -126,19 +164,19 @@ We followed an adapted version of the GATK guidelines for hard filtering [https:
 * First, we used the GATK SelectVariants tool with option "-selectType SNP" to extract the single nucleotide polymorphisms (SNPs) from the raw VCF file.
 
 ```
-java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T SelectVariants -R <reference_genome.fa> -V <SpBa.vcf> -selectType SNP -o <SpBa_snps.vcf>
+java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T SelectVariants -R reference_genome.fa -V Str2.0_SpBa.vcf -selectType SNP -o Str2.0_SpBa_snps.vcf
 ```
 
 * We filtered the SNPs using the GATK VariantFiltration tool with options '--filterExpression "QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0 || SOR > 3.0"' to filter out variants where the QUAL field value divided by the unfiltered depth of non-homogygous reference samples was less than 2.0, the Phred-scaled probability of stand bias was greater than 60.0, the root mean square mapping quality of all the reads at the site was less than 40.0, the u-based z-approximation from a rank-sum test comparing mapping qualities of reads in favor of the reference versus alternate alleles was less than -12.5, the u-based z-approximation from a rank-sum test comparing the positions of the reference and alternate alleles within reads was less than -8.0, or the strand odds ratio (SOR), which estimates strand bias while accounting for the ratio of reads that cover each of the alleles at a site, was greater than 3.0 (https://software.broadinstitute.org/gatk/documentation/article.php?id=6925; Accessed 2018 Mar 15).
 
 ```
-java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T VariantFiltration -R reference_genome.fa -V SpBa_snps.vcf --filterExpression "QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0 || SOR > 3.0" --filterName "my_snp_filter" -o SpBa_snps_filt1.vcf
+java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T VariantFiltration -R <reference_genome.fa> -V Str2.0_SpBa_snps.vcf --filterExpression "QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0 || SOR > 3.0" --filterName "my_snp_filter" -o Str2.0_SpBa_snps_filt1.vcf
 ```
 
 * We used the GATK SelectVariants tool with the "--excludeFiltered" option to produce a final VCF file of high-confidence SNPs for BQSR.
 
 ```
-java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T SelectVariants -R reference_genome.fa -V SpBa_snps_filt1.vcf --excludeFiltered -o SpBa_snps_filt2.vcf
+java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T SelectVariants -R reference_genome.fa -V <Str2.0_SpBa_snps_filt1.vcf> --excludeFiltered -o <Str2.0_SpBa_snps_filt2.vcf>
 ```
 
 ### Indel filtering
@@ -148,19 +186,19 @@ We filtered indels using the [filt_SpBa_StrOccCau2_indels.sh](filt_SpBa_StrOccCa
 * Similar to the SNPs, we used the GATK SelectVariants tool with option "-selectType INDEL" to extract the indels from the raw VCF file.
 
 ```
-java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T SelectVariants -R <reference_genome.fa> -V <SpBa.vcf> -selectType INDEL -o <SpBa_indels.vcf>
+java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T SelectVariants -R reference_genome.fa -V Str2.0_SpBa.vcf -selectType INDEL -o Str2.0_SpBa_indels.vcf
 ```
 
 * We filtered the indels using the GATK VariantFiltration tools with options '--filterExpression "QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0 || SOR > 10.0"' to filter out variants where the QUAL field value, which measured variant confidence, divided by the unfiltered depth of non-homogygous reference samples was less than 2.0, the Phred-scaled probability of stand bias was greater than 200.0, the u-based z-approximation from a rank-sum test comparing the positions of the reference and alternate alleles within reads was less than -20.0, or the strand odds ratio was greater than 10.0 (https://software.broadinstitute.org/gatk/documentation/article.php?id=6925; Accessed 2018 Mar 15).
 
 ```
-java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T VariantFiltration -R <reference_genome.fa> -V <SpBa_indels.vcf> --filterExpression "QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0 || SOR > 10.0" --filterName "my_indel_filter" -o <SpBa_indels_filt1.vcf>
+java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T VariantFiltration -R reference_genome.fa -V Str2.0_SpBa_indels.vcf --filterExpression "QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0 || SOR > 10.0" --filterName "my_indel_filter" -o Str2.0_SpBa_indels_filt1.vcf
 ```
 
 * We then used the GATK SelectVariants tool with the "--excludeFiltered" option to produce a final VCF file of high-confidence indels for BQSR.
 
 ```
-java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T SelectVariants -R <reference_genome.fa> -V <SpBa_indels_filt1.vcf> --excludeFiltered -o <SpBa_indels_filt2.vcf>
+java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T SelectVariants -R reference_genome.fa -V Str2.0_SpBa_indels_filt1.vcf --excludeFiltered -o Str2.0_SpBa_indels_filt2.vcf
 ```
 
 ### BQSR
@@ -170,7 +208,7 @@ We performed base quality score recalibration (BQSR) and called variants for eac
 * Following an adapted version of the GATK guidelines for BQSR (https://gatkforums.broadinstitute.org/gatk/discussion/2801/howto-recalibrate-base-quality-scores-run-bqsr; Accessed 2018 Mar 15), we first used the GATK BaseRecalibrator tool with default options other than supplying our high-confidence SNP and indel VCF files to the "-knownSites" option to produce a report file of covariation data for use in recalibrating the alignments.
 
 ```
-java -Xmx4g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T BaseRecalibrator -R reference_genome.fa -I sample_alignment.bam -knownSites SpBa_snps_filt2.vcf -knownSites SpBa_indels_filt2.vcf -o recal_data_table.tb 1>recal_data_table.log 2>recal_data_table.err
+java -Xmx4g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T BaseRecalibrator -R reference_genome.fa -I sample_alignment.bam -knownSites Str2.0_SpBa_snps_filt2.vcf -knownSites Str2.0_SpBa_indels_filt2.vcf -o recal_data_table.tb 1>recal_data_table.log 2>recal_data_table.err
 ```
 
 * We then used the GATK PrintReads tool supplying the covariation data report file to the "-BQSR" option to perform the actual recalibration of the sorted, duplicate-marked BAM files for all of our samples.
@@ -188,56 +226,63 @@ java -Xmx4g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.j
 * We combined the individual sample gVCF files into a file of variants across samples by using the GATK GenotypeGVCFs tool with default settings to produce a new VCF file.
 
 ```
-java -Xmx100g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T GenotypeGVCFs -R reference_genome.fa --variant sample{1..29}_recal.g.vcf -o SpBa_recal.vcf 1>SpBa_recal.vcf.log 2>SpBa_recal.vcf.err
+java -Xmx100g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T GenotypeGVCFs -R reference_genome.fa --variant sample{1..29}_recal.g.vcf -o Str2.0_SpBa_recal.vcf 1>Str2.0_SpBa_recal.vcf.log 2>Str2.0_SpBa_recal.vcf.err
 ```
 
 ### Variant filtering
 
-We performed the
+We applied the filters up to our calculation of the mean site sequence coverage depth using the script [filt1_SpBa_StrOccCau2_recal.sh](filt1_SpBa_StrOccCau2_recal.sh).
 
 * Similar to the pre-BQSR filtering, we filtered the new VCF file by first using the GATK SelectVariants tool with the "-selectType SNP" option to extract the SNPs.
 
 ```
-java -Xmx4g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T SelectVariants -R reference_genome.fa -V SpBa_recal.vcf -selectType SNP -o SpBa_recal_snps.vcf 1>SpBa_recal_snps.vcf.log 2>SpBa_recal_snps.vcf.err
-```
-
-* We next removed the mitochondrial genome variants from the VCF file using GNU Awk (GAWK) version 4.2.0 [@freesoftwarefoundationGNUAwk2017] with the expression 'awk '$1 !~ /^Sequoia_complete_mtGenome$/''.
-
-```
-awk '$1 !~ /^Sequoia_complete_mtGenome$/' SpBa_recal_snps.vcf >SpBa_recal_snps_filt1.vcf
-```
-
-* We removed any variants that fell within repetitive or low complexity regions using BEDTools version 2.25.0 [@quinlanBEDToolsFlexibleSuite2010] with options 'intersect -v -a <file.vcf> -b <masked_regions.bed> -header -wa' where 'file.vcf' was our filtered VCF file and 'masked_regions.bed' was the BED file of N-masked regions we obtained from Hanna  [-@hannaRepeatmaskedStrixOccidentalis2018]
-
-```
-bedtools intersect -v -a SpBa_recal_snps_filt1.vcf -b masked_regions.bed -header -wa > SpBarecal_snps_filt2.vcf
+java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T SelectVariants -R reference_genome.fa -V SpBa_recal.vcf -selectType SNP -o Str2.0_SpBa_recal_snps.vcf 1>Str2.0_SpBa_recal_snps.vcf.log 2>Str2.0_SpBa_recal_snps.vcf.err
 ```
 
 * We then filtered the SNPs using the GATK VariantFiltration tool with the options '--filterExpression "QD < 2.0 || FS > 60.0 || SOR > 3.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0"' to filter out the variants where the QUAL field value (a measure of variant confidence) divided by the unfiltered depth of non-homogygous reference samples was less than 2.0; the Phred-scaled probability of strand bias was greater than 60.0; the strand odds ratio (SOR), which is an estimate of strand bias while accounting for the ratio of reads that cover each of the alleles at a site, was greater than 3.0; the root mean square mapping quality of all the reads at the site was less than 40.0; the u-based z-approximation from a rank-sum test comparing mapping qualities of reads in favor of the reference versus alternate alleles was less than -12.5; or the u-based z-approximation from a rank-sum test comparing the positions of the reference and alternate alleles within reads was less than -8.0 (https://software.broadinstitute.org/gatk/documentation/article.php?id=6925 ; Accessed 2018 Mar 15).
 
 ```
-java -Xmx4g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T VariantFiltration -R reference_genome.fa -V SpBa_recal.vcf --filterExpression "QD < 2.0 || FS > 60.0 || SOR > 3.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0" --filterName "my_snp_filter" -o SpBa_recal_snps_filt3.vcf 1>SpBa_recal_snps_filt3.log 2>SpBa_recal_snps_filt3.err
+java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T VariantFiltration -R reference_genome.fa -V SpBa_recal.vcf --filterExpression "QD < 2.0 || FS > 60.0 || SOR > 3.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0" --filterName "my_snp_filter" -o Str2.0_SpBa_recal_snps_filt1.vcf 1>Str2.0_SpBa_recal_snps_filt1.log 2>Str2.0_SpBa_recal_snps_filt1.err
 ```
 
+* We removed the filtered variants with the GATK SelectVariants tool.
+
+```
+java -Xmx10g -Djava.io.tmpdir=/temporary/directory/path -jar $GATK -T SelectVariants -R reference_genome.fa -V SpBa_recal_snps_filt1.vcf --excludeFiltered -o Str2.0_SpBa_recal_snps_filt2.vcf 1>Str2.0_SpBa_recal_snps_filt2.log 2>Str2.0_SpBa_recal_snps_filt2.err
+```
+
+* We removed any variants that fell within repetitive or low complexity regions using BEDTools version 2.25.0 [@quinlanBEDToolsFlexibleSuite2010] with options 'intersect -v -a <file.vcf> -b <masked_regions.bed> -header -wa' where 'file.vcf' was our filtered VCF file and 'masked_regions.bed' was the BED file of N-masked regions that we produced following our annotation of repetitive regions in the reference genome.
+
+```
+bedtools intersect -v -a Str2.0_SpBa_recal_snps_filt1.vcf -b masked_regions.bed -header -wa >Str2.0_SpBarecal_snps_filt2.vcf
+```
+
+
+
+* We next removed the mitochondrial genome variants from the VCF file using GNU Awk (GAWK) version 4.2.0 [@freesoftwarefoundationGNUAwk2017] with the expression 'awk '$1 !~ /^Sequoia_complete_mtGenome$/''.
+
+```
+awk '$1 !~ /^Sequoia_complete_mtGenome$/' Str2.0_SpBa_recal_snps.vcf >Str2.0_SpBa_recal_snps_filt1.vcf
+```
 * We used the GATK SelectVariants tool with the " --restrictAllelesTo BIALLELIC --excludeFiltered" options to remove the variants that failed the above filters from the VCF file and retain only biallelic sites.
 
 ```
-java -Xmx4g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T SelectVariants -R reference_genome.fa -V SpBa_recal_snps_filt3.vcf --restrictAllelesTo BIALLELIC --excludeFiltered -o SpBa_recal_snps_filt4.vcf 1>SpBa_recal_snps_filt4.log 2>SpBa_recal_snps_filt4.err
+java -Xmx4g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T SelectVariants -R reference_genome.fa -V SpBa_recal_snps_filt3.vcf --restrictAllelesTo BIALLELIC --excludeFiltered -o Str2.0_SpBa_recal_snps_filt4.vcf 1>Str2.0_SpBa_recal_snps_filt4.log 2>Str2.0_SpBa_recal_snps_filt4.err
 ```
 
 * We used the dp_cov_script.sh tool from SPOW-BDOW-introgression-scripts version 1.1.1 [@hannaSPOWBDOWintrogressionscriptsVersion2017] to calculate the mean and standard deviation of the total unfiltered read depth across all samples per site.
 
 ```
-dp_cov_script.sh SpBa_recal_snps_filt4.vcf
+./dp_cov_script.sh Str2.0_SpBa_recal_snps_filt4.vcf
 ```
 output:
 
-meanDP = 847.395,stdevDP = 552.037,number of sites = 17723739
+meanDP = 868.805,stdevDP = 679.386,number of sites = 17792804
 
-* We then used the vcf_filter_highDP.sh script from genetics-tools version 1.0.1 [@hannaGeneticstoolsVersion2018a] to only retain sites in our VCF file with an unfiltered read depth less than 3,608X, which removed any sites exceeding the mean plus fives the standard deviation, as suggested by the GATK documentation (https://software.broadinstitute.org/gatk/documentation/article.php?id=3225 ; Accessed 2018 Mar 16). The output from this script was our final, filtered VCF file.
+* We then used the vcf_filter_highDP.sh script from genetics-tools version 1.0.1 [@hannaGeneticstoolsVersion2018a] to only retain sites in our VCF file with an unfiltered read depth less than 4,266X, which removed any sites exceeding the mean plus fives the standard deviation, as suggested by the GATK documentation (https://software.broadinstitute.org/gatk/documentation/article.php?id=3225 ; Accessed 2018 Mar 16).
 
 ```
-vcf_filter_highDP.sh SpBa_recal_snps_filt4.vcf 3608 >SpBa_recal_snps_filtfinal.vcf
+vcf_filter_highDP.sh SpBa_recal_snps_filt4.vcf 4266 >Str2.0_SpBa_recal_snps_filt5.vcf
 ```
 
 * We then compressed the VCF using the bgzip tool from HTSlib version 1.8 [@daviesHTSlib2018].
