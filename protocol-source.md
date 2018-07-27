@@ -18,6 +18,10 @@ For the CAS:ORN:98821 sequences, we used the adapter sequences appropriate to ea
 java -jar trimmomatic-0.36.jar PE -threads 48 -trimlog <trimlog_file_path> <R1_input_file> <R2_input_file> <R1_paired_output_file> <R1_unpaired_output_file> <R2_paired_output_file> <R2_unpaired_output_file> ILLUMINACLIP:adapter_file.fa:2:30:10 LEADING:3 TRAILING:3 MINLEN:36
 ```
 
+We trimmed the CAS:ORN:98821 sequences using the [trim_Sequoia.py](trim_Sequoia.py) wrapper script.
+
+We trimmed the other sequences using [trim_high_cov_owls.py](trim_high_cov_owls.py).
+
 ### Reference genome
 
 We combined the following using cat (GNU core utilities) version 8.25 [@granlundCatGNUCoreutils2017] in order to generate the reference genome:
@@ -30,7 +34,13 @@ We combined the following using cat (GNU core utilities) version 8.25 [@granlund
 cat StrOccCau_2.0_nuc.fa mitochondrial_genome.fa >reference_genome.fa
 ```
 
-### Alignment
+### Alignment, processing, and individual sample variant calls
+
+For the sample CAS:ORN:98821 sequence sets, we aligned, processed the alignments, and called variants using the [aln_Sequoia.py](aln_Sequoia.py) wrapper script in this repository. The steps are very similar to those we followed for the other samples with the main difference being that in the paired-end alignment step we used a maximum insert size parameter (-w) appropriate to each sequence set.
+
+For all other samples, we aligned, processed the alignments, and called variants using the [aln_high_cov_owls.py](aln_high_cov_owls.py) wrapper script in this repository.
+
+The general commands we provide below in each section are specific to the samples other than CAS:ORN:98821. Please refer to the wrapper scripts we have provided for the exact manner in which we executed these commands for each sample.
 
 #### Paired reads
 
@@ -83,13 +93,11 @@ java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar picard.jar MarkDu
 
 #### Build BAM index file
 
-We indexed the duplicate-marked alignment file for each sample for use with downstream applications.
+We indexed the duplicate-marked alignment file for each sample for use with downstream applications using the Picard version 2.17.6 MarkDuplicates tool.
 
 ```
-java -Xmx10g -Djava.io.tmpdir=/temporary/directory/path -jar picard.jar MarkDuplicates MAX_RECORDS_IN_RAM=200000 TMP_DIR=/temporary/directory/path INPUT=merged_sorted_dupmarked_alignment_file.bam OUTPUT=merged_sorted_dupmarked_alignment_file.bai 1>output_file.log 2>output_file.err
+java -Xmx10g -Djava.io.tmpdir=/temporary/directory/path -jar picard.jar BuildBamIndex MAX_RECORDS_IN_RAM=200000 TMP_DIR=/temporary/directory/path INPUT=merged_sorted_dupmarked_alignment_file.bam OUTPUT=merged_sorted_dupmarked_alignment_file.bai 1>output_file.log 2>output_file.err
 ```
-
-### SNP calling
 
 #### Individual variant calls
 
@@ -101,7 +109,7 @@ Other than setting “--emitRefConfidence GVCF', we used default options.
 java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T HaplotypeCaller -R <reference_genome.fa> -I <sorted_dedup.bam> --emitRefConfidence GVCF -o <output.g.vcf> 1><output.g.vcf.log> 2><output.g.vcf.err>
 ```
 
-#### VCF creation
+#### Creation of combined sample VCF
 
 In order to combine the individual genomic variant call format file (gVCF) files into a variant call format (VCF) file, we used the GATK version 3.8.0 GenotypeGVCFs tool with default settings.
 
@@ -111,6 +119,8 @@ java -Xmx100g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK
 
 ### SNP filtering
 
+We filtered SNPs using the [filt_SpBa_StrOccCau2_snps.sh](filt_SpBa_StrOccCau2_snps.sh) script. Below we describe each of the steps in further detail.
+
 We followed an adapted version of the GATK guidelines for hard filtering [https://gatkforums.broadinstitute.org/gatk/discussion/2806/howto-apply-hard-filters-to-a-call-set (Accessed 2018 Mar 15); https://software.broadinstitute.org/gatk/documentation/article.php?id=3225 (Accessed 2018 Mar 15); https://software.broadinstitute.org/gatk/documentation/article.php?id=6925 (Accessed 2018 Mar 15)] to generate a subset of high quality variants to use for base quality score recalibration (BQSR) (https://gatkforums.broadinstitute.org/gatk/discussion/44/base-quality-score-recalibration-bqsr; Accessed 2018 Mar 15).
 
 * First, we used the GATK SelectVariants tool with option "-selectType SNP" to extract the single nucleotide polymorphisms (SNPs) from the raw VCF file.
@@ -119,10 +129,10 @@ We followed an adapted version of the GATK guidelines for hard filtering [https:
 java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T SelectVariants -R <reference_genome.fa> -V <SpBa.vcf> -selectType SNP -o <SpBa_snps.vcf>
 ```
 
-* We filtered the SNPs using the GATK VariantFiltration tool with options '--filterExpression "QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0"' to filter out variants where the QUAL field value divided by the unfiltered depth of non-homogygous reference samples was less than 2.0, the Phred-scaled probability of stand bias was greater than 60.0, the root mean square mapping quality of all the reads at the site was less than 40.0, the u-based z-approximation from a rank-sum test comparing mapping qualities of reads in favor of the reference versus alternate alleles was less than -12.5, or the u-based z-approximation from a rank-sum test comparing the positions of the reference and alternate alleles within reads was less than -8.0 (https://software.broadinstitute.org/gatk/documentation/article.php?id=6925; Accessed 2018 Mar 15).
+* We filtered the SNPs using the GATK VariantFiltration tool with options '--filterExpression "QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0 || SOR > 3.0"' to filter out variants where the QUAL field value divided by the unfiltered depth of non-homogygous reference samples was less than 2.0, the Phred-scaled probability of stand bias was greater than 60.0, the root mean square mapping quality of all the reads at the site was less than 40.0, the u-based z-approximation from a rank-sum test comparing mapping qualities of reads in favor of the reference versus alternate alleles was less than -12.5, the u-based z-approximation from a rank-sum test comparing the positions of the reference and alternate alleles within reads was less than -8.0, or the strand odds ratio (SOR), which estimates strand bias while accounting for the ratio of reads that cover each of the alleles at a site, was greater than 3.0 (https://software.broadinstitute.org/gatk/documentation/article.php?id=6925; Accessed 2018 Mar 15).
 
 ```
-java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T VariantFiltration -R reference_genome.fa -V SpBa_snps.vcf --filterExpression "QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0" --filterName "my_snp_filter" -o SpBa_snps_filt1.vcf
+java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T VariantFiltration -R reference_genome.fa -V SpBa_snps.vcf --filterExpression "QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0 || SOR > 3.0" --filterName "my_snp_filter" -o SpBa_snps_filt1.vcf
 ```
 
 * We used the GATK SelectVariants tool with the "--excludeFiltered" option to produce a final VCF file of high-confidence SNPs for BQSR.
@@ -133,16 +143,18 @@ java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.
 
 ### Indel filtering
 
+We filtered indels using the [filt_SpBa_StrOccCau2_indels.sh](filt_SpBa_StrOccCau2_indels.sh) script. Below we describe each of the steps in further detail.
+
 * Similar to the SNPs, we used the GATK SelectVariants tool with option "-selectType INDEL" to extract the indels from the raw VCF file.
 
 ```
 java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T SelectVariants -R <reference_genome.fa> -V <SpBa.vcf> -selectType INDEL -o <SpBa_indels.vcf>
 ```
 
-* We filtered the indels using the GATK VariantFiltration tools with options '--filterExpression "QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0"' to filter out variants where the QUAL field value, which measured variant confidence, divided by the unfiltered depth of non-homogygous reference samples was less than 2.0, the Phred-scaled probability of stand bias was greater than 200.0, or the u-based z-approximation from a rank-sum test comparing the positions of the reference and alternate alleles within reads was less than -20.0 (https://software.broadinstitute.org/gatk/documentation/article.php?id=6925; Accessed 2018 Mar 15).
+* We filtered the indels using the GATK VariantFiltration tools with options '--filterExpression "QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0 || SOR > 10.0"' to filter out variants where the QUAL field value, which measured variant confidence, divided by the unfiltered depth of non-homogygous reference samples was less than 2.0, the Phred-scaled probability of stand bias was greater than 200.0, the u-based z-approximation from a rank-sum test comparing the positions of the reference and alternate alleles within reads was less than -20.0, or the strand odds ratio was greater than 10.0 (https://software.broadinstitute.org/gatk/documentation/article.php?id=6925; Accessed 2018 Mar 15).
 
 ```
-java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T VariantFiltration -R <reference_genome.fa> -V <SpBa_indels.vcf> --filterExpression "QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0" --filterName "my_indel_filter" -o <SpBa_indels_filt1.vcf>
+java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T VariantFiltration -R <reference_genome.fa> -V <SpBa_indels.vcf> --filterExpression "QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0 || SOR > 10.0" --filterName "my_indel_filter" -o <SpBa_indels_filt1.vcf>
 ```
 
 * We then used the GATK SelectVariants tool with the "--excludeFiltered" option to produce a final VCF file of high-confidence indels for BQSR.
@@ -152,6 +164,8 @@ java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.
 ```
 
 ### BQSR
+
+We performed base quality score recalibration (BQSR) and called variants for each sample using the [SpBa_StrOccCau2_recal.sh](SpBa_StrOccCau2_recal.sh) script. Below we provide further information on the relevant steps.
 
 * Following an adapted version of the GATK guidelines for BQSR (https://gatkforums.broadinstitute.org/gatk/discussion/2801/howto-recalibrate-base-quality-scores-run-bqsr; Accessed 2018 Mar 15), we first used the GATK BaseRecalibrator tool with default options other than supplying our high-confidence SNP and indel VCF files to the "-knownSites" option to produce a report file of covariation data for use in recalibrating the alignments.
 
@@ -171,13 +185,15 @@ java -Xmx4g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.j
 java -Xmx4g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T HaplotypeCaller -R reference_genome.fa -I sample_alignment_recal.bam --emitRefConfidence GVCF -o sample_alignment_recal.bam.gvcf 1>sample_alignment_recal.bam.gvcf.log 2>sample_alignment_recal.bam.gvcf.err
 ```
 
-* We combined the gVCF files using the GATK GenotypeGVCFs tool with default settings to produce a new VCF file.
+* We combined the individual sample gVCF files into a file of variants across samples by using the GATK GenotypeGVCFs tool with default settings to produce a new VCF file.
 
 ```
 java -Xmx100g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T GenotypeGVCFs -R reference_genome.fa --variant sample{1..29}_recal.g.vcf -o SpBa_recal.vcf 1>SpBa_recal.vcf.log 2>SpBa_recal.vcf.err
 ```
 
 ### Variant filtering
+
+We performed the
 
 * Similar to the pre-BQSR filtering, we filtered the new VCF file by first using the GATK SelectVariants tool with the "-selectType SNP" option to extract the SNPs.
 
