@@ -285,6 +285,9 @@ meanDP = 868.805,stdevDP = 679.386,number of sites = 17792804
 vcf_filter_highDP.sh SpBa_recal_snps_filt4.vcf 4266 >Str2.0_SpBa_recal_snps_filt5.vcf
 ```
 
+* We then created a subset of the VCF with just the eastern barred owlsextracted 
+
+
 * We then compressed the VCF using the bgzip tool from HTSlib version 1.8 [@daviesHTSlib2018].
 
 ```
