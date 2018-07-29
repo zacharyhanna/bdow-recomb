@@ -282,10 +282,23 @@ meanDP = 868.805,stdevDP = 679.386,number of sites = 17792804
 * We then used the vcf_filter_highDP.sh script from genetics-tools version 1.0.1 [@hannaGeneticstoolsVersion2018a] to only retain sites in our VCF file with an unfiltered read depth less than 4,266X, which removed any sites exceeding the mean plus fives the standard deviation, as suggested by the GATK documentation (https://software.broadinstitute.org/gatk/documentation/article.php?id=3225 ; Accessed 2018 Mar 16).
 
 ```
-vcf_filter_highDP.sh SpBa_recal_snps_filt4.vcf 4266 >Str2.0_SpBa_recal_snps_filt5.vcf
+vcf_filter_highDP.sh SpBa_recal_snps_filt4.vcf 4266 >Str2.0_SpBa_recal_snps_filt5_BADOeastGrEq1Mb.vcf
 ```
 
-* We then created a subset of the VCF with just the eastern barred owlsextracted 
+* We made a list of all of the scaffolds and contigs greater
+
+* We then used the GATK SelectVariants tool to create a subset of the VCF with just the eastern barred owl samples and only the contigs or scaffolds with a length greater than or equal to 1 Mb.
+
+```
+java -Xmx10g -Djava.io.tmpdir=/media/walllab/zhanna/tmp -jar GenomeAnalysisTK.jar -T SelectVariants -R reference_genome.fa -V $filt3_snps --intervals GrEq1Mb.intervals -sn ZRHG105 -sn ZRHG106 -sn ZRHG107 -sn ZRHG108 -sn ZRHG109 -sn ZRHG110 -sn ZRHG111 -sn ZRHG112 -sn ZRHG116 -sn ZRHG117 -sn ZRHG118 -sn ZRHG122 -o Str2.0_SpBa_recal_snps_filt5.vcf
+
+my_intervals="/media/walllab/zhanna/owl/20180628_SpBa_StrOccCau2_snps_filt2_vcf_contigs_wLeng_sortGrEq1Mb_scafs.intervals"
+filt5_snps="/media/walllab/zhanna/owl/20180716_StrOccCau2_SpBarecal_snps_filt4_BADOeastGrEq1Mb.vcf"
+filt5_err="/media/walllab/zhanna/owl/20180716_StrOccCau2_SpBarecal_snps_filt4_BADOeastGrEq1Mb.err"
+filt5_log="/media/walllab/zhanna/owl/20180716_StrOccCau2_SpBarecal_snps_filt4_BADOeastGrEq1Mb.log"
+
+```
+
 
 
 * We then compressed the VCF using the bgzip tool from HTSlib version 1.8 [@daviesHTSlib2018].
