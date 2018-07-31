@@ -302,7 +302,13 @@ tabix -p vcf Str2.0_SpBa_recal_snps_EBdowGrEq1Mb.vcf.bgz
 
 ### Phasing
 
-* We phased the genotypes of the eastern barred owl individuals using Beagle version 5.0 [XXX].
+* We phased the genotypes of the eastern barred owl individuals using Beagle version 5.0 (03Jul18.40b) [@browningRapidAccurateHaplotype2007; @browningBeagle2018] with default options.
+
+```
+java -Xmx100g -Djava.io.tmpdir=/path/to/tmp -jar beagle.03Jul18.40b.jar gt=Str2.0_SpBa_recal_snps_EBdowGrEq1Mb.vcf out=Str2.0_SpBa_recal_snps_EBdowGrEq1Mb.gt 1>Str2.0_SpBa_recal_snps_EBdowGrEq1Mb.gt.log 2>Str2.0_SpBa_recal_snps_EBdowGrEq1Mb.gt.err
+```
+
+
 
 ### Sequence coverage per individual
 
