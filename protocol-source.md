@@ -254,20 +254,13 @@ java -Xmx10g -Djava.io.tmpdir=/temporary/directory/path -jar $GATK -T SelectVari
 * We removed any variants that fell within repetitive or low complexity regions using BEDTools version 2.25.0 [@quinlanBEDToolsFlexibleSuite2010] with options 'intersect -v -a <file.vcf> -b <masked_regions.bed> -header -wa' where 'file.vcf' was our filtered VCF file and 'masked_regions.bed' was the BED file of N-masked regions that we produced following our annotation of repetitive regions in the reference genome.
 
 ```
-bedtools intersect -v -a Str2.0_SpBa_recal_snps_filt1.vcf -b masked_regions.bed -header -wa >Str2.0_SpBarecal_snps_filt2.vcf
+bedtools intersect -v -a Str2.0_SpBa_recal_snps_filt2.vcf -b masked_regions.bed -header -wa >Str2.0_SpBarecal_snps_filt3.vcf
 ```
 
-
-
-* We next removed the mitochondrial genome variants from the VCF file using GNU Awk (GAWK) version 4.2.0 [@freesoftwarefoundationGNUAwk2017] with the expression 'awk '$1 !~ /^Sequoia_complete_mtGenome$/''.
+* We used the GATK SelectVariants tool with the "--restrictAllelesTo BIALLELIC -XL Sequoia_complete_mtGenome --excludeFiltered" options to retain only biallelic sites, remove variants on the mitochondrial genome, and remove the variants that failed any of the above filters.
 
 ```
-awk '$1 !~ /^Sequoia_complete_mtGenome$/' Str2.0_SpBa_recal_snps.vcf >Str2.0_SpBa_recal_snps_filt1.vcf
-```
-* We used the GATK SelectVariants tool with the " --restrictAllelesTo BIALLELIC --excludeFiltered" options to remove the variants that failed the above filters from the VCF file and retain only biallelic sites.
-
-```
-java -Xmx4g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T SelectVariants -R reference_genome.fa -V SpBa_recal_snps_filt3.vcf --restrictAllelesTo BIALLELIC --excludeFiltered -o Str2.0_SpBa_recal_snps_filt4.vcf 1>Str2.0_SpBa_recal_snps_filt4.log 2>Str2.0_SpBa_recal_snps_filt4.err
+java -Xmx4g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T SelectVariants -R reference_genome.fa -V SpBa_recal_snps_filt3.vcf --restrictAllelesTo BIALLELIC -XL Sequoia_complete_mtGenome --excludeFiltered -o Str2.0_SpBa_recal_snps_filt4.vcf 1>Str2.0_SpBa_recal_snps_filt4.log 2>Str2.0_SpBa_recal_snps_filt4.err
 ```
 
 * We used the dp_cov_script.sh tool from SPOW-BDOW-introgression-scripts version 1.1.1 [@hannaSPOWBDOWintrogressionscriptsVersion2017] to calculate the mean and standard deviation of the total unfiltered read depth across all samples per site.
@@ -279,39 +272,37 @@ output:
 
 meanDP = 868.805,stdevDP = 679.386,number of sites = 17792804
 
-* We then used the vcf_filter_highDP.sh script from genetics-tools version 1.0.1 [@hannaGeneticstoolsVersion2018a] to only retain sites in our VCF file with an unfiltered read depth less than 4,266X, which removed any sites exceeding the mean plus fives the standard deviation, as suggested by the GATK documentation (https://software.broadinstitute.org/gatk/documentation/article.php?id=3225 ; Accessed 2018 Mar 16).
+* We used cat (GNU core utilities) version 8.25 [@granlundCatGNUCoreutils2017], GAWK version 4.2.0 [@freesoftwarefoundationGNUAwk2017], and sort (GNU core utilities) version 8.25 [@haertelSortGNUCoreutils2016] in the script [scafsGrEq1Mb.sh](scafsGrEq1Mb.sh) to create a list of all of the scaffolds and contigs greater than or equal to 1 Mb in length (referred to as the GrEq1Mb.intervals file below).
+
+We applied the next two filters using the script [filt2_SpBa_StrOccCau2_recal.sh](filt2_SpBa_StrOccCau2_recal.sh).
+
+* We used the vcf_filter_highDP.sh script from genetics-tools version 1.0.1 [@hannaGeneticstoolsVersion2018a] to only retain sites in our VCF file with an unfiltered read depth less than 4,266X, which removed any sites exceeding the mean coverage plus fives the standard deviation, as suggested by the GATK documentation (https://software.broadinstitute.org/gatk/documentation/article.php?id=3225 ; Accessed 2018 Mar 16).
 
 ```
 vcf_filter_highDP.sh SpBa_recal_snps_filt4.vcf 4266 >Str2.0_SpBa_recal_snps_filt5_BADOeastGrEq1Mb.vcf
 ```
 
-* We made a list of all of the scaffolds and contigs greater
-
 * We then used the GATK SelectVariants tool to create a subset of the VCF with just the eastern barred owl samples and only the contigs or scaffolds with a length greater than or equal to 1 Mb.
 
 ```
-java -Xmx10g -Djava.io.tmpdir=/media/walllab/zhanna/tmp -jar GenomeAnalysisTK.jar -T SelectVariants -R reference_genome.fa -V $filt3_snps --intervals GrEq1Mb.intervals -sn ZRHG105 -sn ZRHG106 -sn ZRHG107 -sn ZRHG108 -sn ZRHG109 -sn ZRHG110 -sn ZRHG111 -sn ZRHG112 -sn ZRHG116 -sn ZRHG117 -sn ZRHG118 -sn ZRHG122 -o Str2.0_SpBa_recal_snps_filt5.vcf
-
-my_intervals="/media/walllab/zhanna/owl/20180628_SpBa_StrOccCau2_snps_filt2_vcf_contigs_wLeng_sortGrEq1Mb_scafs.intervals"
-filt5_snps="/media/walllab/zhanna/owl/20180716_StrOccCau2_SpBarecal_snps_filt4_BADOeastGrEq1Mb.vcf"
-filt5_err="/media/walllab/zhanna/owl/20180716_StrOccCau2_SpBarecal_snps_filt4_BADOeastGrEq1Mb.err"
-filt5_log="/media/walllab/zhanna/owl/20180716_StrOccCau2_SpBarecal_snps_filt4_BADOeastGrEq1Mb.log"
-
+java -Xmx10g -Djava.io.tmpdir=/media/walllab/zhanna/tmp -jar GenomeAnalysisTK.jar -T SelectVariants -R reference_genome.fa -V $filt3_snps --intervals GrEq1Mb.intervals -sn ZRHG105 -sn ZRHG106 -sn ZRHG107 -sn ZRHG108 -sn ZRHG109 -sn ZRHG110 -sn ZRHG111 -sn ZRHG112 -sn ZRHG116 -sn ZRHG117 -sn ZRHG118 -sn ZRHG122 -o Str2.0_SpBa_recal_snps_EBdowGrEq1Mb.vcf
 ```
-
-
 
 * We then compressed the VCF using the bgzip tool from HTSlib version 1.8 [@daviesHTSlib2018].
 
 ```
-bgzip -c SpBa_recal_snps_filtfinal.vcf >SpBa_recal_snps_filtfinal.vcf.bgz
+bgzip -c Str2.0_SpBa_recal_snps_EBdowGrEq1Mb.vcf >Str2.0_SpBa_recal_snps_EBdowGrEq1Mb.vcf.bgz
 ```
 
 * We indexed the compressed VCF using the Tabix tool from HTSlib version 1.8 [@daviesHTSlib2018; @liTabixFastRetrieval2011].
 
 ```
-tabix -p vcf SpBa_recal_snps_filtfinal.vcf.bgz
+tabix -p vcf Str2.0_SpBa_recal_snps_EBdowGrEq1Mb.vcf.bgz
 ```
+
+### Phasing
+
+* We phased the genotypes of the eastern barred owl individuals using Beagle version 5.0 [XXX].
 
 ### Sequence coverage per individual
 
