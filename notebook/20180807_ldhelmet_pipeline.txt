@@ -1,0 +1,58 @@
+20180807_ldhelmet_pipeline
+
+$ chmod +x /Users/hcaz/GitHub/bdow-recomb/ld_helmet_pipeline.py
+
+$ scp /Users/hcaz/GitHub/bdow-recomb/ld_helmet_pipeline.py $NachmanLab3:~/bin/
+
+$ python ~/bin/ld_helmet_pipeline.py /media/walllab/zhanna/owl/20180628_SpBa_StrOccCau2_snps_filt2_vcf_contigs_wLeng_sortGrEq1Mb_scafs.intervals
+
+
+
+$ python ~/bin/ld_helmet_pipeline.py run /Users/hcaz/test_scaf_ls.txt
+
+ 2 August 2018                                                                                            vcftools(man)
+
+NAME
+       vcftools v0.1.16 - Utilities for the variant call format (VCF) and binary variant call format (BCF)
+
+
+$ python ~/bin/ld_helmet_pipeline.py run /media/walllab/zhanna/owl/20180628_SpBa_StrOccCau2_snps_filt2_vcf_contigs_wLeng_sortGrEq1Mb_scafs.intervals
+
+$ which vcf2fasta
+/media/walllab/zhanna/.linuxbrew/bin/vcf2fasta
+
+/media/walllab/zhanna/bin/ldpop
+
+usage: vcf2fasta [options] [file]
+
+options:
+    -f, --reference REF     Use this reference when decomposing samples.
+    -p, --prefix PREFIX     Affix this output prefix to each file, none by default
+    -P, --default-ploidy N  Set a default ploidy for samples which do not have information in the first record (2).
+
+Outputs sample_seq:N.fa for each sample, reference sequence, and chromosomal copy N in [0,1... ploidy].
+
+
+/media/walllab/zhanna/owl/assemblies/StrOccCau2_scafs
+
+# making individual fasta files for relevant scaffolds
+
+$ scp /Users/hcaz/GitHub/bdow-recomb/split_ref_fasta.sh $NachmanLab3:~/bin/
+
+$ ~/bin/split_ref_fasta.sh /media/walllab/zhanna/owl/20180628_SpBa_StrOccCau2_snps_filt2_vcf_contigs_wLeng_sortGrEq1Mb_scafs.intervals
+
+zhanna@NachmanLab3:~/owl/assemblies/StrOccCau2_scafs$ ls -lah /media/walllab/zhanna/.linuxbrew/bin/vcf2fasta
+lrwxrwxrwx 1 zhanna zhanna 36 Aug  3 20:14 /media/walllab/zhanna/.linuxbrew/bin/vcf2fasta -> ../Cellar/vcflib/1.0.0/bin/vcf2fasta
+
+$ python ~/bin/ld_helmet_pipeline.py test /media/walllab/zhanna/owl/20180628_SpBa_StrOccCau2_snps_filt2_vcf_contigs_wLeng_sortGrEq1Mb_scafs.intervals
+
+$ python ~/bin/ld_helmet_pipeline.py run /media/walllab/zhanna/owl/20180628_SpBa_StrOccCau2_snps_filt2_vcf_contigs_wLeng_sortGrEq1Mb_scafs.intervals
+
+Super-Scaffold_47_obj_BADOeastGrEq1MbZRHG117_Super-Scaffold_47_obj:1.fasta
+
+# need to index fasta files
+
+$ for filename in *.fa; do samtools faidx $filename; done
+
+
+$ grep ">" /Volumes/Ext_Files2/working/research_wall_lab/notebook/20180700_LD_map_methods/LDhelmet_v1.10/example_scripts/input.fasta
