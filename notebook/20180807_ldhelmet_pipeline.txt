@@ -56,3 +56,94 @@ $ for filename in *.fa; do samtools faidx $filename; done
 
 
 $ grep ">" /Volumes/Ext_Files2/working/research_wall_lab/notebook/20180700_LD_map_methods/LDhelmet_v1.10/example_scripts/input.fasta
+
+$ scp /Users/hcaz/GitHub/bdow-recomb/ld_helmet_pipeline.py $NachmanLab3:~/bin/
+
+$ python ~/bin/ld_helmet_pipeline.py test /media/walllab/zhanna/owl/20180628_SpBa_StrOccCau2_snps_filt2_vcf_contigs_wLeng_sortGrEq1Mb_scafs.intervals
+
+$ python ~/bin/ld_helmet_pipeline.py run /media/walllab/zhanna/owl/20180628_SpBa_StrOccCau2_snps_filt2_vcf_contigs_wLeng_sortGrEq1Mb_scafs.intervals
+
+
+(LDpopPy3) zhanna@NachmanLab3:~/bin/ldpop$ pip install .
+Processing /media/walllab/zhanna/bin/ldpop
+Collecting numpy (from ldpop==1.0.0)
+  Cache entry deserialization failed, entry ignored
+  Downloading https://files.pythonhosted.org/packages/27/92/c01d3a6c58ceab0e6ec36ad3af41bc076014cc916afcb979ab4c9558f347/numpy-1.15.0-cp37-cp37m-manylinux1_x86_64.whl (13.8MB)
+    100% |████████████████████████████████| 13.9MB 3.2MB/s 
+Collecting scipy (from ldpop==1.0.0)
+  Downloading https://files.pythonhosted.org/packages/40/de/0c22c6754370ba6b1fa8e53bd6e514d4a41a181125d405a501c215cbdbd6/scipy-1.1.0-cp37-cp37m-manylinux1_x86_64.whl (31.2MB)
+    100% |████████████████████████████████| 31.2MB 837kB/s 
+Collecting pandas (from ldpop==1.0.0)
+  Cache entry deserialization failed, entry ignored
+  Downloading https://files.pythonhosted.org/packages/67/a7/12261a51ac2e7be4c698ca27cbe364ca5f16d64999456ee47ea8c7b44417/pandas-0.23.4-cp37-cp37m-manylinux1_x86_64.whl (8.8MB)
+    100% |████████████████████████████████| 8.8MB 6.7MB/s 
+Collecting future (from ldpop==1.0.0)
+  Using cached https://files.pythonhosted.org/packages/00/2b/8d082ddfed935f3608cc61140df6dcbf0edea1bc3ab52fb6c29ae3e81e85/future-0.16.0.tar.gz
+Collecting pytz>=2011k (from pandas->ldpop==1.0.0)
+  Cache entry deserialization failed, entry ignored
+  Using cached https://files.pythonhosted.org/packages/30/4e/27c34b62430286c6d59177a0842ed90dc789ce5d1ed740887653b898779a/pytz-2018.5-py2.py3-none-any.whl
+Collecting python-dateutil>=2.5.0 (from pandas->ldpop==1.0.0)
+  Cache entry deserialization failed, entry ignored
+  Using cached https://files.pythonhosted.org/packages/cf/f5/af2b09c957ace60dcfac112b669c45c8c97e32f94aa8b56da4c6d1682825/python_dateutil-2.7.3-py2.py3-none-any.whl
+Collecting six>=1.5 (from python-dateutil>=2.5.0->pandas->ldpop==1.0.0)
+  Cache entry deserialization failed, entry ignored
+  Using cached https://files.pythonhosted.org/packages/67/4b/141a581104b1f6397bfa78ac9d43d8ad29a7ca43ea90a2d863fe3056e86a/six-1.11.0-py2.py3-none-any.whl
+Building wheels for collected packages: ldpop, future
+  Running setup.py bdist_wheel for ldpop ... done
+  Stored in directory: /tmp/pip-ephem-wheel-cache-9iwwrhm5/wheels/43/f2/f2/60befaad4ab106e8d2c2d5bb34af035e7245845d6b721611c7
+  Running setup.py bdist_wheel for future ... done
+  Stored in directory: /media/walllab/zhanna/.cache/pip/wheels/bf/c9/a3/c538d90ef17cf7823fa51fc701a7a7a910a80f6a405bf15b1a
+Successfully built ldpop future
+Installing collected packages: numpy, scipy, pytz, six, python-dateutil, pandas, future, ldpop
+Successfully installed future-0.16.0 ldpop-1.0.0 numpy-1.15.0 pandas-0.23.4 python-dateutil-2.7.3 pytz-2018.5 scipy-1.1.0 six-1.11.0
+(LDpopPy3) zhanna@NachmanLab3:~/bin/ldpop$ run/ldtable.py --help
+usage: ldtable.py [-h] -n N -th theta -rh num_rh,max_rh [-s s0,s1,...,sD]
+                  [-t t1,...,tD] [--approx] [--cores CORES] [--log logfile]
+
+Print a lookup table, as expected by ldhat or ldhelmet.
+
+optional arguments:
+  -h, --help         show this help message and exit
+  -n N               sample size
+  -th theta          twice the mutation rate
+  -rh num_rh,max_rh  grid of rhos (twice the recomb rate). The grid has num_rh
+                     uniformly spaced points from 0 to max_rh, inclusive.
+                     (((Alternatively, to create a non-uniform grid, use '-rh
+                     r0,step0,r1,step1,r2,...rK'. This creates a grid
+                     {r0,r0+step0,r0+2*step0,...,r1,r1+step1,...,rK} similar
+                     to ldhelmet. Note that non-uniform grid is incompatible
+                     with vanilla ldhat.)))
+  -s s0,s1,...,sD    coalescent scaled population sizes (s0=present size,
+                     sD=ancient size)
+  -t t1,...,tD       times of size changes from present backwards. Must be
+                     increasing positive reals.
+  --approx           use finite moran model. A reasonable approximation that
+                     is much faster than the exact formula. Accuracy of the
+                     approximation can be improved by taking n larger than
+                     needed, and using ldhat/lkgen.c to subsample. (Converges
+                     to the 'exact' diffusion as n->infty)
+  --cores CORES      Number of parallel processes to use.
+  --log logfile      Log extra info to logfile. If logfile='.', logs to
+                     STDERR.
+(LDpopPy3) zhanna@NachmanLab3:~/bin/ldpop$ 
+
+source activate LDpopPy3
+
+source deactivate
+
+
+
+source activate LDpopPy3
+(LDpopPy3) zhanna@NachmanLab3:~/owl/filtered_reads$ ~/bin/ldpop/run/ldtable.py
+
+
+
+$ scp /Users/hcaz/GitHub/bdow-recomb/ld_helmet_pipeline.py $NachmanLab3:~/bin/
+
+$ python ~/bin/ld_helmet_pipeline.py test /media/walllab/zhanna/owl/20180628_SpBa_StrOccCau2_snps_filt2_vcf_contigs_wLeng_sortGrEq1Mb_scafs.intervals /media/walllab/zhanna/owl/StrOccCau2_GrEq1Mb_site_WattTheta.txt
+
+$ python ~/bin/ld_helmet_pipeline.py run /media/walllab/zhanna/owl/20180628_SpBa_StrOccCau2_snps_filt2_vcf_contigs_wLeng_sortGrEq1Mb_scafs.intervals /media/walllab/zhanna/owl/StrOccCau2_GrEq1Mb_site_WattTheta.txt
+
+
+
+
