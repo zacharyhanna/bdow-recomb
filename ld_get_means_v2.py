@@ -2,7 +2,15 @@ import sys
 import glob
 """
 Example run:
-python ld_get_means.py scaffold_list_file means_output_file
+python ld_get_means.py scaffold_list_file means_output_file all_scafs_output_file
+
+In addition to calculating the scaffold per base pair average. This version
+also outputs a file with more detail:
+column 1: scaffold name
+column 2: begin coordinate
+column 3: end coordinate
+column 4: distance
+column 5: per base pair rho
 """
 
 res_dir = "/media/walllab/zhanna/owl/ldhelmet/"
@@ -20,9 +28,14 @@ def get_ld_txt(scaf, res_path):
     return res_pattern
 
 def wtd_vals(splitline):
-    dist = int(splitline[1])-int(splitline[0])
-    wtd_mean = float(splitline[2])*dist
-    return dist, wtd_mean
+    scaf = splitline[0]
+    start_coord = int(splitline[0])
+    end_coord = int(splitline[1])
+    dist = end_coord - start_coord
+    mean_rho = float(splitline[2])
+    wtd_mean = mean_rho * dist
+    rho_per_bp = mean_rho / dist # keep editing here
+    return start_coord, end_coord, dist, wtd_mean
 
 def get_mean(ld_res_file):
     tot_dist = 0
@@ -33,7 +46,7 @@ def get_mean(ld_res_file):
             line_num += 1
             if line_num > 3:
                 splitline = line.strip().split()
-                line_dist, line_wtd_mean = wtd_vals(splitline)
+                line_start, line_end, line_dist, line_wtd_mean = wtd_vals(splitline)
                 tot_dist += line_dist
                 tot_wtd_mean += line_wtd_mean
     return str(tot_wtd_mean / tot_dist)
