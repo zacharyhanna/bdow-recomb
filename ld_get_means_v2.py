@@ -34,22 +34,24 @@ def wtd_vals(splitline):
     dist = end_coord - start_coord
     mean_rho = float(splitline[2])
     wtd_mean = mean_rho * dist
-    rho_per_bp = mean_rho / dist # keep editing here
-    return start_coord, end_coord, dist, wtd_mean
+    rho_per_bp = mean_rho / dist
+    return start_coord, end_coord, dist, wtd_mean, rho_per_bp
 
 def get_mean(ld_res_file):
     tot_dist = 0
     tot_wtd_mean = 0.0
+    ls_vals = []
     with open(ld_res_file) as ld_file:
         line_num = 0
         for line in ld_file:
             line_num += 1
             if line_num > 3:
                 splitline = line.strip().split()
-                line_start, line_end, line_dist, line_wtd_mean = wtd_vals(splitline)
+                line_start, line_end, line_dist, line_wtd_mean, line_rho_per_bp = wtd_vals(splitline)
                 tot_dist += line_dist
                 tot_wtd_mean += line_wtd_mean
-    return str(tot_wtd_mean / tot_dist)
+                ls_vals.append([line_start, line_end, line_dist, line_rho_per_bp])
+    return str(tot_wtd_mean / tot_dist), ls_vals # keep editing here
 
 def write_results(res_ls, out_file):
     with open(out_file, 'w') as outfile:
