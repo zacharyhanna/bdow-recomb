@@ -279,7 +279,7 @@ We applied the next two filters using the script [filt2_SpBa_StrOccCau2_recal.sh
 * We used the vcf_filter_highDP.sh script from genetics-tools version 1.0.1 [@hannaGeneticstoolsVersion2018a] to only retain sites in our VCF file with an unfiltered read depth less than 4,266X, which removed any sites exceeding the mean coverage plus fives the standard deviation, as suggested by the GATK documentation (https://software.broadinstitute.org/gatk/documentation/article.php?id=3225 ; Accessed 2018 Mar 16).
 
 ```
-vcf_filter_highDP.sh SpBa_recal_snps_filt4.vcf 4266 >Str2.0_SpBa_recal_snps_filt5_BADOeastGrEq1Mb.vcf
+vcf_filter_highDP.sh SpBa_recal_snps_filt4.vcf 4266 >Str2.0_SpBa_recal_snps_filt5.vcf
 ```
 
 * We then used the GATK SelectVariants tool to create a subset of the VCF with just the eastern barred owl samples and only the contigs or scaffolds with a length greater than or equal to 1 Mb.
