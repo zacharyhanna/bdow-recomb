@@ -4,14 +4,15 @@
 
 After completing the assembly, we performed the following steps:
 
-* We first screen the assembly for contaminant sequences.
+* We first screened the assembly for contaminant sequences.
 
-See this [contamination screen methods README](https://github.com/zacharyhanna/StrOccCau2-methods/blob/master/contamination-screen/README.md) for details on the methodology we followed to screen the assembly for contaminants and remove them.
+See [contamination screen methods README](https://github.com/zacharyhanna/bdow-recomb/blob/master/contamination-screen/README.md) for details on the methodology we followed to screen the assembly for contaminants and remove them.
 
 * We then performed repeat-masking of the assembly to identify repetitive regions as well as low complexity regions.
 
-See [repeat_methods.md](repeat_methods.md) for details of the methdology.
+See [repeat masking methods README](https://github.com/zacharyhanna/bdow-recomb/blob/master/repeat-masking/README.md) for details of the methodology.
 
-* We next annotated the assembly.
+* We next called variants.
+
 
 ## Recombination methods

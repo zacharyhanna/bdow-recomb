@@ -5,43 +5,6 @@ author: Jeffrey D. Wall
 affiliation: Institute for Human Genetics, University of California, San Francisco, San Francisco, California, United States of America
 ---
 
-## Repeat masking of genome assembly
-
-We performed a homology-based annotation of repetitive regions using RepeatMasker version open-4.0.7 [@smitRepeatMaskerOpen4Accessed2013a] with the repeat databases of the DFAM library version 2.0 [@hubleyDfamDatabaseRepetitive2016] and the Repbase RepeatMasker libraries version 20170127 [@baoRepbaseUpdateDatabase2015; @jurkaRepbaseUpdateDatabase2005; @jurkaRepeatsGenomicDNA1998; @jurkaRepbaseUpdateDatabase2000]. Our installation of the RepeatMasker program relied on tandem repeats finder (TRF) version 4.09 [@bensonTandemRepeatsFinder1999] in addition to the NCBI BLAST+ version 2.7.1 [@camachoBLASTArchitectureApplications2009], RMBlast version 2.2.28 [@smitRMBlastAccessed20162015], and HMMER version 3.1b2 (@eddyProfileHiddenMarkov1998; http://hmmer.org) sequence search tools. We first performed a homology-based annotation of repetitive regions in the reference genome using RepeatMasker with the options '-gccalc -species aves'.
-
-```
-RepeatMasker -pa 12 -gccalc -species aves reference_genome.fa 1>reference_genome_RMask_aves.log 2>reference_genome_RMask_aves.err
-```
-
-* We created a de novo model of the repeats in the reference genome using RepeatModeler version 1.0.8 [@smitRepeatModelerOpen1Accessed2015a]. Our RepeatModeler installation used the RepeatMasker version open4.0.7 installation as detailed in the previous step with Repbase RepeatMasker libraries version 20170127, the RMBlast version 2.2.28 sequence search tool, TRF version 4.09, and two de novo repeat finding tools, RECON version 1.08 [@baoAutomatedNovoIdentification2002] and RepeatScout version 1.0.5 [@priceNovoIdentificationRepeat2005]. We first used the RepeatMasker BuildDatabase tool to build a sequence database from the reference nuclear genome, StrOccCau_2.0_nuc.fa (we didn't want the model to include repeats from the mitochondrial genome).
-
-```
-BuildDatabase -name nuclear_genome nuclear_genome.fa 1>nuclear_genome_RModbuilddb.log 2>nuclear_genome_RModbuilddb.err
-```
-
-* We then ran RepeatModeler with default options.
-
-```
-RepeatModeler -pa 6 -database nuclear_genome 1>nuclear_genome_RMod.log 2>nuclear_genome_RMod.err
-```
-
-* We performed a final round of repeat masking by supplying the masked genome output from the homology-based masking to RepeatMasker with the options "-gccalc -lib <RepeatModeler_output>", where the "RepeatModeler_output" was the "consensi.fa.classified" repeat library file output from our RepeatModeler run.
-
-```
-RepeatMasker -pa 12 -gccalc -lib consensi.fa.classified reference_genome.fa.masked.fa 1>RMask.log 2>RMask.err
-```
-
-* Since RepeatMasker masked all of the repetitive regions with N characters, we used seqtk version 1.2-r94 [@liSeqtkVersion2r942016] with options "cutN -n1 -p100000000 -g" to create a browser extensible data (BED) formatted file of the coordinates of all of the N regions (these included the gap regions in the original reference genome).
-
-```
-seqtk cutN -n1 -p100000000 -g reference_genome.fa.masked.fa.masked >reference_genome.fa.masked.fa.masked_Nregions.bed
-```
-
-* We then used the GNU core utility sort version 8.25 [@haertelSortGNUCoreutils2016] with options '-k1,1 -k2,2n' to sort the BED file.
-
-```
-sort -k1,1 -k2,2n reference_genome.fa.masked.fa.masked_Nregions.bed >reference_genome.fa.masked.fa.masked_Nregions_sorted.bed
-```
 
 ## Sequence data
 
@@ -60,17 +23,7 @@ We trimmed the CAS:ORN:98821 sequences using the [trim_Sequoia.py](trim_Sequoia.
 
 We trimmed the other sequences using [trim_high_cov_owls.py](trim_high_cov_owls.py).
 
-### Reference genome
 
-We combined the following using cat (GNU core utilities) version 8.25 [@granlundCatGNUCoreutils2017] in order to generate the reference genome:
-
-1. StrOccCau_2.0_nuc.fa
-
-2. mitochondrial genome [@hannaCompleteMitochondrialGenome2017]
-
-```
-cat StrOccCau_2.0_nuc.fa mitochondrial_genome.fa >reference_genome.fa
-```
 
 ### Alignment, processing, and individual sample variant calls
 

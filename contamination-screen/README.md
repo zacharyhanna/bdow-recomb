@@ -652,14 +652,25 @@ bioawk version 1.0
 They were all bacteria.  
 
 ---
-* We removed those contigs by running the below:  
+* We removed those contigs by running the below:
+
 ```
 bioawk -c fastx '$name !~ /^Contig805$/ && $name !~ /^Contig2449$/ && $name !~ /^Contig2319$/ && $name !~ /^Contig3553$/ && $name !~ /^Contig1521$/ && $name !~ /^Contig3981$/ && $name !~ /^Contig1909$/ {print ">"$name" "$comment"\n"$seq}' genome_assembly_0.3.2.fa >genome_assembly_0.3.3.fa
 ```
+
 **Tools**  
 bioawk version 1.0  
 
+### Final assembly version
+
+genome_assembly_0.3.3.fa became our cleaned assembly, which we renamed "StrOccCau_2.0_nuc.fa".
+
+```
+mv genome_assembly_0.3.3.fa StrOccCau_2.0_nuc.fa
+```
+
 ## References
+
 * Altschul SF, Madden TL, Schäffer AA, Zhang J, Zhang Z, Miller W, et al. Gapped BLAST and PSI-BLAST: a new generation of protein database search programs. Nucl Acids Res. 1997;25: 3389–3402. doi:[10.1093/nar/25.17.3389](https://doi.org/10.1093/nar/25.17.3389)  
 * Benson DA, Cavanaugh M, Clark K, Karsch-Mizrachi I, Ostell J, Pruitt KD, et al. GenBank. Nucleic Acids Res. 2018;46: D41–D47. doi:[10.1093/nar/gkx1094](https://doi.org/10.1093/nar/gkx1094)  
 * Boratyn GM, Camacho C, Cooper PS, Coulouris G, Fong A, Ma N, et al. BLAST: a more efficient report with usability improvements. Nucl Acids Res. 2013;41: W29–W33. doi:[10.1093/nar/gkt282](https://doi.org/10.1093/nar/gkt282)  
