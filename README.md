@@ -14,6 +14,6 @@ See [repeat masking methods README](https://github.com/zacharyhanna/bdow-recomb/
 
 * We next called variants.
 
-See []()
+See [variant calling methods README](https://github.com/zacharyhanna/bdow-recomb/blob/master/variant-calling/README.md)
 
 ## Recombination methods
