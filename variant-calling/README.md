@@ -7,7 +7,7 @@ We used Trimmomatic version 0.36 (Bolger et al., 2014)
 to trim adapter sequences.
 In the Trimmomatic command, we employed the options below that included the use of an adapter file.
 For all sequences apart from those for CAS:ORN:98821, we used the “TruSeq3-PE-2.fa” adapter file supplied in Trimmomatic version 0.36.
-For the CAS:ORN:98821 sequences, we used the adapter sequences appropriate to each set of sequences (Hanna, 2018; Hanna et al., 2017).
+For the CAS:ORN:98821 sequences, we used the adapter sequences appropriate to each set of sequences (Hanna, 2018a; Hanna et al., 2017a).
 
 ```
 java -jar trimmomatic-0.36.jar PE -threads 48 -trimlog <trimlog_file_path> <R1_input_file> <R2_input_file> <R1_paired_output_file> <R1_unpaired_output_file> <R2_paired_output_file> <R2_unpaired_output_file> ILLUMINACLIP:adapter_file.fa:2:30:10 LEADING:3 TRAILING:3 MINLEN:36
@@ -29,7 +29,7 @@ The general commands we provide below in each section are specific to the sample
 
 #### Paired reads
 
-Other than sample CAS:ORN:98821, for each sample, we used BWA-MEM version 0.7.17-r1188 [@liAligningSequenceReads2013] to align the trimmed paired reads to the reference genome.
+Other than sample CAS:ORN:98821, for each sample, we used BWA-MEM version 0.7.17-r1188 (Li, 2013) to align the trimmed paired reads to the reference genome.
 We employed default options other than parameters 'bwa mem -M'. We used 420 nt as the insert size and set the maximum insert size (parameter '-w') equal to 1000.
 
 As there were multiple read sets from the different SRA run accessions for sample CAS:ORN:98821, we aligned the paired reads for each of these independently.
@@ -39,7 +39,7 @@ bwa mem -M -t 12 -R '@RG\tID:<sample_run_ln>1\tSM:<sample>\tPL:illumina\tLB:<run
 ```
 
 #### Unpaired reads
-We used BWA-MEM version 0.7.17-r1188 [@liAligningSequenceReads2013] to align the trimmed unpaired reads to the reference genome.
+We used BWA-MEM version 0.7.17-r1188 (Li, 2013) to align the trimmed unpaired reads to the reference genome.
 We used the default options other than parameters 'bwa mem -M'.
 
 We independently aligned each of the multiple read sets from the different SRA run accessions for sample CAS:ORN:98821.
@@ -86,7 +86,7 @@ java -Xmx10g -Djava.io.tmpdir=/temporary/directory/path -jar picard.jar BuildBam
 
 #### Individual variant calls
 
-We used the Genome Analysis Toolkit (GATK) version 3.8.0 HaplotypeCaller tool [@depristoFrameworkVariationDiscovery2011; @mckennaGenomeAnalysisToolkit2010; @vanderauweraFastQDataHigh2013] to call variants for each sample individually and create a genomic variant call format file (gVCF).
+We used the Genome Analysis Toolkit (GATK) version 3.8.0 HaplotypeCaller tool (DePristo et al., 2011; McKenna et al., 2010; Van der Auwera et al., 2013) to call variants for each sample individually and create a genomic variant call format file (gVCF).
 Our input into HaplotypeCaller for each sample was the corresponding bwa-aligned, sorted, duplicate-marked binary alignment map (BAM) file.
 Other than setting “--emitRefConfidence GVCF', we used default options.
 
@@ -198,7 +198,7 @@ java -Xmx10g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.
 java -Xmx10g -Djava.io.tmpdir=/temporary/directory/path -jar $GATK -T SelectVariants -R reference_genome.fa -V SpBa_recal_snps_filt1.vcf --excludeFiltered -o Str2.0_SpBa_recal_snps_filt2.vcf 1>Str2.0_SpBa_recal_snps_filt2.log 2>Str2.0_SpBa_recal_snps_filt2.err
 ```
 
-* We removed any variants that fell within repetitive or low complexity regions using BEDTools version 2.25.0 [@quinlanBEDToolsFlexibleSuite2010] with options 'intersect -v -a <file.vcf> -b <masked_regions.bed> -header -wa' where 'file.vcf' was our filtered VCF file and 'masked_regions.bed' was the BED file of N-masked regions that we produced following our annotation of repetitive regions in the reference genome.
+* We removed any variants that fell within repetitive or low complexity regions using BEDTools version 2.25.0 (Quinlan & Hall, 2010) with options 'intersect -v -a <file.vcf> -b <masked_regions.bed> -header -wa' where 'file.vcf' was our filtered VCF file and 'masked_regions.bed' was the BED file of N-masked regions that we produced following our annotation of repetitive regions in the reference genome.
 
 ```
 bedtools intersect -v -a Str2.0_SpBa_recal_snps_filt2.vcf -b masked_regions.bed -header -wa >Str2.0_SpBarecal_snps_filt3.vcf
@@ -210,7 +210,7 @@ bedtools intersect -v -a Str2.0_SpBa_recal_snps_filt2.vcf -b masked_regions.bed 
 java -Xmx4g -Djava.io.tmpdir=</temporary/directory/path> -jar GenomeAnalysisTK.jar -T SelectVariants -R reference_genome.fa -V SpBa_recal_snps_filt3.vcf --restrictAllelesTo BIALLELIC -XL Sequoia_complete_mtGenome --excludeFiltered -o Str2.0_SpBa_recal_snps_filt4.vcf 1>Str2.0_SpBa_recal_snps_filt4.log 2>Str2.0_SpBa_recal_snps_filt4.err
 ```
 
-* We used the dp_cov_script.sh tool from SPOW-BDOW-introgression-scripts version 1.1.1 [@hannaSPOWBDOWintrogressionscriptsVersion2017] to calculate the mean and standard deviation of the total unfiltered read depth across all samples per site.
+* We used the dp_cov_script.sh tool from SPOW-BDOW-introgression-scripts version 1.1.1 (Hanna et al., 2017b) to calculate the mean and standard deviation of the total unfiltered read depth across all samples per site.
 
 ```
 ./dp_cov_script.sh Str2.0_SpBa_recal_snps_filt4.vcf
@@ -219,20 +219,78 @@ output:
 
 meanDP = 868.805,stdevDP = 679.386,number of sites = 17792804
 
-* We used cat (GNU core utilities) version 8.25 [@granlundCatGNUCoreutils2017], GAWK version 4.2.0 [@freesoftwarefoundationGNUAwk2017], and sort (GNU core utilities) version 8.25 [@haertelSortGNUCoreutils2016] in the script [scafsGrEq1Mb.sh](scafsGrEq1Mb.sh) to create a list of all of the scaffolds and contigs greater than or equal to 1 Mb in length (referred to as the GrEq1Mb.intervals file below).
+* We applied the next filter using the script [filt2_SpBa_StrOccCau2_recal.sh](filt2_SpBa_StrOccCau2_recal.sh).
 
-We applied the next two filters using the script [filt2_SpBa_StrOccCau2_recal.sh](filt2_SpBa_StrOccCau2_recal.sh).
-
-* We used the vcf_filter_highDP.sh script from genetics-tools version 1.0.1 [@hannaGeneticstoolsVersion2018a] to only retain sites in our VCF file with an unfiltered read depth less than 4,266X, which removed any sites exceeding the mean coverage plus fives the standard deviation, as suggested by the GATK documentation (https://software.broadinstitute.org/gatk/documentation/article.php?id=3225 ; Accessed 2018 Mar 16).
+We used the vcf_filter_highDP.sh script from genetics-tools version 1.0.1 (Hanna, 2018b) to only retain sites in our VCF file with an unfiltered read depth less than 4,266X, which removed any sites exceeding the mean coverage plus fives the standard deviation, as suggested by the GATK documentation (https://software.broadinstitute.org/gatk/documentation/article.php?id=3225 ; Accessed 2018 Mar 16).
 
 ```
 vcf_filter_highDP.sh SpBa_recal_snps_filt4.vcf 4266 >Str2.0_SpBa_recal_snps_filt5.vcf
 ```
 
+## Final set of filtered variants
+
+* The above produced the final set of filtered variants
+
+```
+mv Str2.0_SpBa_recal_snps_filt5.vcf Str2.0_SpBa_recal_snps_filtfinal.vcf
+```
+
+### Further subsets of variants
+
+#### Make list of scaffolds with length of 1 Mb or greater
+
+* We used cat (GNU core utilities) version 8.25 (Granlund & Stallman, 2017], GAWK version 4.2.0 (Free Software Foundation, 2017), and sort (GNU core utilities) version 8.25 (Haertel & Eggert, 2016) in the script [scafsGrEq1Mb.sh](scafsGrEq1Mb.sh) to create a list of all of the scaffolds and contigs greater than or equal to 1 Mb in length (referred to as the GrEq1Mb.intervals file below).
+
+#### Eastern barred owl sample variants on scaffolds >= 1 Mb
+
+* We used the GATK SelectVariants tool in the script [filt3_SpBa_StrOccCau2_recal.sh](filt3_SpBa_StrOccCau2_recal.sh) to create a subset of the VCF including only the eastern barred owl samples and only the contigs or scaffolds with a length greater than or equal to 1 Mb.
+
+```
+java -Xmx10g -Djava.io.tmpdir=/media/walllab/zhanna/tmp -jar GenomeAnalysisTK.jar -T SelectVariants -R reference_genome.fa -V Str2.0_SpBa_recal_snps_filtfinal.vcf --intervals GrEq1Mb.intervals -sn ZRHG105 -sn ZRHG106 -sn ZRHG107 -sn ZRHG108 -sn ZRHG109 -sn ZRHG110 -sn ZRHG111 -sn ZRHG112 -sn ZRHG116 -sn ZRHG117 -sn ZRHG118 -sn ZRHG122 -o Str2.0_SpBa_recal_snps_filtfinal_BADOeastGrEq1Mb.vcf
+```
+
+* We then compressed the VCF using the bgzip tool from HTSlib version 1.8 (Davies et al., 2018).
+
+```
+bgzip -c Str2.0_SpBa_recal_snps_filtfinal_BADOeastGrEq1Mb.vcf >Str2.0_SpBa_recal_snps_filtfinal_BADOeastGrEq1Mb.vcf.bgz
+```
+
+* We indexed the compressed VCF using the Tabix tool from HTSlib version 1.8 (Li, 2011; Davies et al., 2018).
+
+```
+tabix -p vcf Str2.0_SpBa_recal_snps_filtfinal_BADOeastGrEq1Mb.vcf.bgz
+```
+
+
+
 ## References
 
 Bolger AM, Lohse M, Usadel B. Trimmomatic: a flexible trimmer for Illumina sequence data. *Bioinformatics*. 2014;30: 2114–2120. doi:10.1093/bioinformatics/btu170
 
-Hanna ZR, Henderson JB, Wall JD, Emerling CA, Fuchs J, Runckel C, et al. Northern Spotted Owl (*Strix occidentalis caurina*) Genome: Divergence with the Barred Owl (*Strix varia*) and Characterization of Light-Associated Genes. *Genome Biol Evol*. 2017;9: 2522–2545. doi:10.1093/gbe/evx158
+Davies R, Randall JC, McCarthy SA, Bonfield J, Pollard MO, Marshall J, et al. HTSlib [Internet]. 2018. Available: https://github.com/samtools/htslib
 
-Hanna ZR. Adapter sequences used for trimming of genomic sequences in the assembly of the Northern Spotted Owl (*Strix occidentalis caurina*) genome assembly version 1.0. Version 1.0.0. *Zenodo*. 2018; doi:10.5281/zenodo.1197373
+DePristo MA, Banks E, Poplin R, Garimella KV, Maguire JR, Hartl C, et al. A framework for variation discovery and genotyping using next-generation DNA sequencing data. *Nat Genet*. 2011;43: 491–498. doi:10.1038/ng.806
+
+Free Software Foundation. GNU Awk [Internet]. 2017. Available: https://www.gnu.org/software/gawk
+
+Granlund T, Stallman RM. cat (GNU coreutils) [Internet]. 2017. Available: http://www.gnu.org/software/coreutils/coreutils.html
+
+Haertel M, Eggert P. sort (GNU coreutils) [Internet]. 2016. Available: http://www.gnu.org/software/coreutils/coreutils.html
+
+Hanna ZR, Henderson JB, Wall JD. SPOW-BDOW-introgression-scripts. Version 1.1.1. Zenodo. 2017b; doi:10.5281/zenodo.1203701
+
+Hanna ZR, Henderson JB, Wall JD, Emerling CA, Fuchs J, Runckel C, et al. Northern Spotted Owl (*Strix occidentalis caurina*) Genome: Divergence with the Barred Owl (*Strix varia*) and Characterization of Light-Associated Genes. *Genome Biol Evol*. 2017a;9: 2522–2545. doi:10.1093/gbe/evx158
+
+Hanna ZR. Adapter sequences used for trimming of genomic sequences in the assembly of the Northern Spotted Owl (*Strix occidentalis caurina*) genome assembly version 1.0. Version 1.0.0. *Zenodo*. 2018a; doi:10.5281/zenodo.1197373
+
+Hanna ZR. genetics-tools. Version 1.0.1. *Zenodo*. 2018b; doi:10.5281/zenodo.1257508
+
+Li H. Tabix: fast retrieval of sequence features from generic TAB-delimited files. *Bioinformatics*. 2011;27: 718–719. doi:10.1093/bioinformatics/btq671
+
+Li H. Aligning sequence reads, clone sequences and assembly contigs with BWA-MEM. ArXiv:1303.3997 Q-Bio. [Accessed 2016 Feb 16]. 2013; Available: http://arxiv.org/abs/1303.3997
+
+McKenna A, Hanna M, Banks E, Sivachenko A, Cibulskis K, Kernytsky A, et al. The Genome Analysis Toolkit: A MapReduce framework for analyzing next-generation DNA sequencing data. *Genome Res*. 2010;20: 1297–1303. doi:10.1101/gr.107524.110
+
+Quinlan AR, Hall IM. BEDTools: a flexible suite of utilities for comparing genomic features. *Bioinformatics*. 2010;26: 841–842. doi:10.1093/bioinformatics/btq033
+
+Van der Auwera GA, Carneiro MO, Hartl C, Poplin R, del Angel G, Levy-Moonshine A, et al. From FastQ data to high confidence variant calls: the Genome Analysis Toolkit best practices pipeline. *Curr Protoc Bioinformatics*. 2013;11: 11.10.1-11.10.33. doi:10.1002/0471250953.bi1110s43

@@ -8,23 +8,8 @@ affiliation: Institute for Human Genetics, University of California, San Francis
 
 
 
-* We then used the GATK SelectVariants tool to create a subset of the VCF with just the eastern barred owl samples and only the contigs or scaffolds with a length greater than or equal to 1 Mb.
 
-```
-java -Xmx10g -Djava.io.tmpdir=/media/walllab/zhanna/tmp -jar GenomeAnalysisTK.jar -T SelectVariants -R reference_genome.fa -V $filt3_snps --intervals GrEq1Mb.intervals -sn ZRHG105 -sn ZRHG106 -sn ZRHG107 -sn ZRHG108 -sn ZRHG109 -sn ZRHG110 -sn ZRHG111 -sn ZRHG112 -sn ZRHG116 -sn ZRHG117 -sn ZRHG118 -sn ZRHG122 -o Str2.0_SpBa_recal_snps_EBdowGrEq1Mb.vcf
-```
 
-* We then compressed the VCF using the bgzip tool from HTSlib version 1.8 [@daviesHTSlib2018].
-
-```
-bgzip -c Str2.0_SpBa_recal_snps_EBdowGrEq1Mb.vcf >Str2.0_SpBa_recal_snps_EBdowGrEq1Mb.vcf.bgz
-```
-
-* We indexed the compressed VCF using the Tabix tool from HTSlib version 1.8 [@daviesHTSlib2018; @liTabixFastRetrieval2011].
-
-```
-tabix -p vcf Str2.0_SpBa_recal_snps_EBdowGrEq1Mb.vcf.bgz
-```
 
 ### Phasing
 
