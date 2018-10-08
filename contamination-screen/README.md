@@ -671,19 +671,34 @@ mv genome_assembly_0.3.3.fa StrOccCau_2.0_nuc.fa
 
 ## References
 
-* Altschul SF, Madden TL, Schäffer AA, Zhang J, Zhang Z, Miller W, et al. Gapped BLAST and PSI-BLAST: a new generation of protein database search programs. Nucl Acids Res. 1997;25: 3389–3402. doi:[10.1093/nar/25.17.3389](https://doi.org/10.1093/nar/25.17.3389)  
-* Benson DA, Cavanaugh M, Clark K, Karsch-Mizrachi I, Ostell J, Pruitt KD, et al. GenBank. Nucleic Acids Res. 2018;46: D41–D47. doi:[10.1093/nar/gkx1094](https://doi.org/10.1093/nar/gkx1094)  
-* Boratyn GM, Camacho C, Cooper PS, Coulouris G, Fong A, Ma N, et al. BLAST: a more efficient report with usability improvements. Nucl Acids Res. 2013;41: W29–W33. doi:[10.1093/nar/gkt282](https://doi.org/10.1093/nar/gkt282)  
-* Camacho C, Coulouris G, Avagyan V, Ma N, Papadopoulos J, Bealer K, et al. BLAST+: architecture and applications. BMC Bioinformatics. 2009;10: 421. doi:10.1186/1471-2105-10-421  
-* Free Software Foundation. GNU Awk [Internet]. 2017. Available: https://www.gnu.org/software/gawk  
-* Gailly J, Adler M, Meyering J, Eggert P. Gzip (GNU coreutils) [Internet]. 2016. Available: http://www.gnu.org/software/coreutils/coreutils.html  
-* Granlund T, Stallman RM. cat (GNU coreutils) [Internet]. 2017. Available: https://www.gnu.org/software/coreutils/coreutils.html  
-* Haertel M, Eggert P. sort (GNU coreutils) [Internet]. 2016. Available: https://www.gnu.org/software/coreutils/coreutils.html  
-* Johnson M, Zaretskaya I, Raytselis Y, Merezhuk Y, McGinnis S, Madden TL. NCBI BLAST: a better web interface. Nucl Acids Res. 2008;36: W5–W9. doi:[10.1093/nar/gkn201](https://doi.org/10.1093/nar/gkn201)  
-* Li H. bioawk [Internet]. 2013. Available: https://github.com/lh3/bioawk  
-* Parker M, MacKenzie D, Meyering J. mv (GNU coreutils) [Internet]. 2017. Available: https://www.gnu.org/software/coreutils/coreutils.html  
-* MacKenzie D, Meyering J. chmod (GNU coreutils) [Internet]. 2017. Available: https://www.gnu.org/software/coreutils/coreutils.html  
-* National Center for Biotechnology Information. VecScreen [Internet]. 2012. Available: https://www.ncbi.nlm.nih.gov/tools/vecscreen/  
-* Rühsen T, Shah D, Scrivano G, Nikšić H. GNU Wget [Internet]. 2015. Available: https://www.gnu.org/software/wget/  
-* Sayers E. Sample Applications of the E-utilities. Entrez Programming Utilities Help [Internet]. Bethesda, Maryland, United States of America: National Center for Biotechnology Information, United States of America; 2017. Available: https://www.ncbi.nlm.nih.gov/books/NBK25498  
-* Stallman RM, MacKenzie D. uniq (GNU coreutils) [Internet]. 2017. Available: http://www.gnu.org/software/coreutils/coreutils.html  
+Altschul SF, Madden TL, Schäffer AA, Zhang J, Zhang Z, Miller W, et al. Gapped BLAST and PSI-BLAST: a new generation of protein database search programs. Nucl Acids Res. 1997;25: 3389–3402. doi:[10.1093/nar/25.17.3389](https://doi.org/10.1093/nar/25.17.3389)  
+
+Benson DA, Cavanaugh M, Clark K, Karsch-Mizrachi I, Ostell J, Pruitt KD, et al. GenBank. Nucleic Acids Res. 2018;46: D41–D47. doi:[10.1093/nar/gkx1094](https://doi.org/10.1093/nar/gkx1094)  
+
+Boratyn GM, Camacho C, Cooper PS, Coulouris G, Fong A, Ma N, et al. BLAST: a more efficient report with usability improvements. Nucl Acids Res. 2013;41: W29–W33. doi:[10.1093/nar/gkt282](https://doi.org/10.1093/nar/gkt282)  
+
+Camacho C, Coulouris G, Avagyan V, Ma N, Papadopoulos J, Bealer K, et al. BLAST+: architecture and applications. BMC Bioinformatics. 2009;10: 421. doi:10.1186/1471-2105-10-421  
+
+Free Software Foundation. GNU Awk [Internet]. 2017. Available: https://www.gnu.org/software/gawk  
+
+Gailly J, Adler M, Meyering J, Eggert P. Gzip (GNU coreutils) [Internet]. 2016. Available: http://www.gnu.org/software/coreutils/coreutils.html  
+
+Granlund T, Stallman RM. cat (GNU coreutils) [Internet]. 2017. Available: https://www.gnu.org/software/coreutils/coreutils.html  
+
+Haertel M, Eggert P. sort (GNU coreutils) [Internet]. 2016. Available: https://www.gnu.org/software/coreutils/coreutils.html  
+
+Johnson M, Zaretskaya I, Raytselis Y, Merezhuk Y, McGinnis S, Madden TL. NCBI BLAST: a better web interface. Nucl Acids Res. 2008;36: W5–W9. doi:[10.1093/nar/gkn201](https://doi.org/10.1093/nar/gkn201)  
+
+Li H. bioawk [Internet]. 2013. Available: https://github.com/lh3/bioawk  
+
+Parker M, MacKenzie D, Meyering J. mv (GNU coreutils) [Internet]. 2017. Available: https://www.gnu.org/software/coreutils/coreutils.html  
+
+MacKenzie D, Meyering J. chmod (GNU coreutils) [Internet]. 2017. Available: https://www.gnu.org/software/coreutils/coreutils.html  
+
+National Center for Biotechnology Information. VecScreen [Internet]. 2012. Available: https://www.ncbi.nlm.nih.gov/tools/vecscreen/  
+
+Rühsen T, Shah D, Scrivano G, Nikšić H. GNU Wget [Internet]. 2015. Available: https://www.gnu.org/software/wget/  
+
+Sayers E. Sample Applications of the E-utilities. Entrez Programming Utilities Help [Internet]. Bethesda, Maryland, United States of America: National Center for Biotechnology Information, United States of America; 2017. Available: https://www.ncbi.nlm.nih.gov/books/NBK25498  
+
+Stallman RM, MacKenzie D. uniq (GNU coreutils) [Internet]. 2017. Available: http://www.gnu.org/software/coreutils/coreutils.html  

@@ -10,10 +10,15 @@ See [contamination screen methods README](https://github.com/zacharyhanna/bdow-r
 
 * We then performed repeat-masking of the assembly to identify repetitive regions as well as low complexity regions.
 
-See [repeat masking methods README](https://github.com/zacharyhanna/bdow-recomb/blob/master/repeat-masking/README.md) for details of the methodology.
+See [repeat masking methods README](https://github.com/zacharyhanna/bdow-recomb/blob/master/repeat-masking/README.md) for details of the repeat-masking methodology.
 
-* We next called variants.
 
-See [variant calling methods README](https://github.com/zacharyhanna/bdow-recomb/blob/master/variant-calling/README.md)
+## Variant calling
+
+* See [variant calling methods README](https://github.com/zacharyhanna/bdow-recomb/blob/master/variant-calling/README.md) for details of the methodology we used to call variants.
+
+## We performed 
 
 ## Recombination methods
+
+* See []()

@@ -246,7 +246,7 @@ mv Str2.0_SpBa_recal_snps_filt5.vcf Str2.0_SpBa_recal_snps_filtfinal.vcf
 * We used the GATK SelectVariants tool in the script [filt3_SpBa_StrOccCau2_recal.sh](filt3_SpBa_StrOccCau2_recal.sh) to create a subset of the VCF including only the eastern barred owl samples and only the contigs or scaffolds with a length greater than or equal to 1 Mb.
 
 ```
-java -Xmx10g -Djava.io.tmpdir=/media/walllab/zhanna/tmp -jar GenomeAnalysisTK.jar -T SelectVariants -R reference_genome.fa -V Str2.0_SpBa_recal_snps_filtfinal.vcf --intervals GrEq1Mb.intervals -sn ZRHG105 -sn ZRHG106 -sn ZRHG107 -sn ZRHG108 -sn ZRHG109 -sn ZRHG110 -sn ZRHG111 -sn ZRHG112 -sn ZRHG116 -sn ZRHG117 -sn ZRHG118 -sn ZRHG122 -o Str2.0_SpBa_recal_snps_filtfinal_BADOeastGrEq1Mb.vcf
+java -Xmx10g -Djava.io.tmpdir=/tmp/dir -jar GenomeAnalysisTK.jar -T SelectVariants -R reference_genome.fa -V Str2.0_SpBa_recal_snps_filtfinal.vcf --intervals GrEq1Mb.intervals -sn ZRHG105 -sn ZRHG106 -sn ZRHG107 -sn ZRHG108 -sn ZRHG109 -sn ZRHG110 -sn ZRHG111 -sn ZRHG112 -sn ZRHG116 -sn ZRHG117 -sn ZRHG118 -sn ZRHG122 -o Str2.0_SpBa_recal_snps_filtfinal_BADOeastGrEq1Mb.vcf
 ```
 
 * We then compressed the VCF using the bgzip tool from HTSlib version 1.8 (Davies et al., 2018).
@@ -260,8 +260,6 @@ bgzip -c Str2.0_SpBa_recal_snps_filtfinal_BADOeastGrEq1Mb.vcf >Str2.0_SpBa_recal
 ```
 tabix -p vcf Str2.0_SpBa_recal_snps_filtfinal_BADOeastGrEq1Mb.vcf.bgz
 ```
-
-
 
 ## References
 
