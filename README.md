@@ -17,8 +17,14 @@ See [repeat masking methods README](https://github.com/zacharyhanna/bdow-recomb/
 
 * See [variant calling methods README](https://github.com/zacharyhanna/bdow-recomb/blob/master/variant-calling/README.md) for details of the methodology we used to call variants.
 
-## We performed 
+## We performed
 
-## Recombination methods
+## Recombination rate estimation methods
 
 * See []()
+
+### Authorship
+
+Authors: <a href="https://orcid.org/0000-0002-0210-7261" target="orcid.widget" rel="noopener noreferrer" style="vertical-align:top;"><img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" style="width:1em;margin-right:.5em," alt="ORCID iD icon">Zachary R. Hanna</a>, Jeffrey D. Wall
+
+Affiliation: Institute for Human Genetics, University of California, San Francisco, San Francisco, California, United States of America
