@@ -17,6 +17,10 @@ After completing the assembly, we performed the following steps:
 
 * See [variant calling methods README](https://github.com/zacharyhanna/bdow-recomb/blob/master/variant-calling/README.md) for details of the methodology we used to call variants.
 
+## Summary statistics
+
+* See [summary statistics methods README](https://github.com/zacharyhanna/bdow-recomb/blob/master/summary-stats/README.md) for details of the methodology.
+
 ## Recombination rate estimation methods
 
 * See [recombination rate estimation methods README](https://github.com/zacharyhanna/bdow-recomb/blob/master/recombination-rate/README.md) for details of the recombination-rate methodology.
